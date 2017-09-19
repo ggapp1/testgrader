@@ -3,17 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def getOption(x):
-	if x in range(50,60) or x in range(380,390):
+	if x in range(40,70) or x in range(370,400):
 		return 'A'
-	if x in range(95,105) or x in range(425,435):
+	if x in range(85,115) or x in range(415,445):
 		return 'B'
-	if x in range(140,150) or x in range(470,480):
+	if x in range(130,160) or x in range(460,490):
 		return 'C'
-	if x in range(185,190) or x in range(515,525):
+	if x in range(175,200) or x in range(505,535):
 		return 'D'
-	if x in range(230,245) or x in range(560,570):
+	if x in range(220,255) or x in range(550,580):
 		return 'E'
-	
+	else:
+		return 'fodeu' + str(x)
 
 def getAnswer(x,y):
 #	print x
@@ -114,7 +115,9 @@ def getAnswer(x,y):
 			return 15
 
 
-image = cv2.imread('dados/pattern_0001_scan.png');
+image = cv2.imread('dados/pattern_0002_scan.png');
+  
+
 image = cv2.resize(image,(960,1080))
 image = image[330:680,193:804]
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -125,17 +128,30 @@ thresh = cv2.threshold(gray, 0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
 cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
+
+
 cnts = cnts[1]
 questionCnts = []
 i = 0
 lista = [': Branco'] * 31
+
+box = cv2.minAreaRect(cnts[1])
+
+print box[2]
+
+
+if box[2] == 0.0: 
+	rot_mat = cv2.getRotationMatrix2D(box[0],90 - box[2], 1)
+	print rot_mat
+	print image.shape
+	thresh = cv2.warpAffine(thresh, rot_mat, (image.shape[0], image.shape[1]), flags=cv2.INTER_LINEAR)
 
 for c in cnts:
 	x,y,w,h = cv2.boundingRect(c)
 	ar = w / float(h)
 	mask = np.zeros(thresh.shape, dtype="uint8")
 	cv2.drawContours(mask, [c], -1, 255, -1)
-
+	
 	mask = cv2.bitwise_and(thresh, thresh, mask=mask)
 	total = cv2.countNonZero(mask)
 
