@@ -2,127 +2,116 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+def getOption(x):
+	if x in range(50,60) or x in range(380,390):
+		return 'A'
+	if x in range(95,105) or x in range(425,435):
+		return 'B'
+	if x in range(140,150) or x in range(470,480):
+		return 'C'
+	if x in range(185,190) or x in range(515,525):
+		return 'D'
+	if x in range(230,245) or x in range(560,570):
+		return 'E'
+	
+
 def getAnswer(x,y):
 #	print x
 	#line 1
 	if y in range(3,13):
 		if x > 300:
-			print 16
+			return 16
 		else:
-			print 1
+			return 1
+			
 	#line 2
 	if y in range(25,35):
 		if x > 300:
-			print 17
+			return 17
 		else:
-			print 2
+			return 2
+			
 	#line 3
 	if y in range(47,57):
 		if x > 300:
-			print 18
+			return 18
 		else:
-			print 3
+			return 3
 	#line 4
 	if y in range(67,77):
 		if x > 300:
-			print 19
+			return 19
 		else:
-			print 4
+			return 4
 	#line 5
 	if y in range(93,103):
 		if x > 300:
-			print 20
+			return 20
+			
 		else:
-			print 5
+			return 5
 	#line 6
 	if y in range(115,125):
 		if x > 300:
-			print 21
+			return 21
 		else:
-			print 6
+			return 6
 	#line 7
 	if y in range(138,148):
 		if x > 300:
-			print 22
+			return 22
 		else:
-			print 7
+			return 7
 	#line 8
 	if y in range(160,170):
 		if x > 300:
-			print 23
+			return 23
+			
 		else:
-			print 8
+			return 8
 	#line 9
 	if y in range(185,195):
 		if x > 300:
-			print 24
+			return 24
 		else:
-			print 9
+			return 9
+			
 	#line 10
 	if y in range(207,217):
 		if x > 300:
-			print 25
+			return 25
 		else:
-			print 10
+			return 10
 	#line 11
 	if y in range(228,238):
 		if x > 300:
-			print 26
+			return 26
 		else:
-			print 11
+			return 11
 	#line 12
 	if y in range(252,262):
 		if x > 300:
-			print 27
+			return 27
 		else:
-			print 12
+			return 12
 	#line 13
 	if y in range(275,285):
 		if x > 300:
-			print 28
+			return 28
 		else:
-			print 13
+			return 13
 	#line 14
 	if y in range(300,310):
 		if x > 300:
-			print 29
+			return 29
 		else:
-			print 14
+			return 14
 	#line 15
 	if y in range(320,330):	
 		if x > 300:
-			print 30
+			return 30
 		else:
-			print 15
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			return 15
 
 
 image = cv2.imread('dados/pattern_0001_scan.png');
@@ -139,8 +128,8 @@ cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE
 cnts = cnts[1]
 questionCnts = []
 i = 0
-lista = []
-print cnts
+lista = [': Branco'] * 31
+
 for c in cnts:
 	x,y,w,h = cv2.boundingRect(c)
 	ar = w / float(h)
@@ -152,13 +141,15 @@ for c in cnts:
 
 	if w >= 10 and h >= 10 and ar >= 1.5 and ar <= 10.1:
 		if total > 270:
-			#print total, x,y
-			lista.append(y)
-			getAnswer(x,y)
+			if(lista[getAnswer(x,y)] == ': Branco'):
+				lista[getAnswer(x,y)] = ': ' + getOption(x)
+			else:
+				lista[getAnswer(x,y)] = ': Nulo'
 			cv2.drawContours(image, [c], -1, 255, -1)
 
-lista.sort()
-#print lista
+
+for i in range(31):
+	print str(i) + " " + lista[i]
 plt.imshow(image)
 plt.show()
 	
