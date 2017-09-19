@@ -66,8 +66,7 @@ def getAnswer(x,y):
 	#line 8
 	if y in range(160,170):
 		if x > 300:
-			return 23
-			
+			return 23		
 		else:
 			return 8
 	#line 9
@@ -146,16 +145,11 @@ def rotateImage(image,gray,blurred,edged,thresh):
 
 
 image = cv2.imread('dados/pattern_0002_scan.png');
-  
 image, gray, blurred, edged, thresh, cnts = getImages(image)
 
 
-
 questionCnts = []
-
-
 lista = [': Branco'] * 31
-
 
 for c in cnts:
 	x,y,w,h = cv2.boundingRect(c)
@@ -177,6 +171,7 @@ for c in cnts:
 
 for i in range(1,31):
 	print str(i) + " " + lista[i]
+
 plt.imshow(image)
 plt.show()
 	
