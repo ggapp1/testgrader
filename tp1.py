@@ -14,7 +14,7 @@ def getOption(x):
 	if x in range(220,255) or x in range(550,580):
 		return 'E'
 	else:
-		return 'fodeu' + str(x)
+		return 'Erro' + str(x)
 
 def getAnswer(x,y):
 #	print x
@@ -115,36 +115,47 @@ def getAnswer(x,y):
 			return 15
 
 
+def getImages(image):
+	image = cv2.resize(image,(960,1080))
+	image = image[330:680,193:804]
+	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+	edged = cv2.Canny(blurred, 75, 200)
+	thresh = cv2.threshold(gray, 0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+
+	return rotateImage(image,gray,blurred,edged,thresh)
+
+
+def getContours(thresh):
+	cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+	return cnts[1]
+
+def rotateImage(image,gray,blurred,edged,thresh):
+	cnts = getContours(thresh)
+	box = cv2.minAreaRect(cnts[1])
+
+	if box[2] != 0.0: 
+		rot_mat = cv2.getRotationMatrix2D(box[0],0 - box[2], 1)
+		image = cv2.warpAffine(image, rot_mat, (image.shape[0], image.shape[1]), flags=cv2.INTER_LINEAR)
+		gray = cv2.warpAffine(gray, rot_mat, (gray.shape[0], gray.shape[1]), flags=cv2.INTER_LINEAR)
+		blurred = cv2.warpAffine(blurred, rot_mat, (blurred.shape[0], blurred.shape[1]), flags=cv2.INTER_LINEAR)
+		edged = cv2.warpAffine(edged, rot_mat, (edged.shape[0], edged.shape[1]), flags=cv2.INTER_LINEAR)
+		thresh = cv2.warpAffine(thresh, rot_mat, (thresh.shape[0], thresh.shape[1]), flags=cv2.INTER_LINEAR)
+		cnts = getContours(thresh)
+	return image,gray,blurred,edged,thresh,cnts
+
+
 image = cv2.imread('dados/pattern_0002_scan.png');
   
-
-image = cv2.resize(image,(960,1080))
-image = image[330:680,193:804]
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-edged = cv2.Canny(blurred, 75, 200)
-
-thresh = cv2.threshold(gray, 0, 255,cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-
-cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+image, gray, blurred, edged, thresh, cnts = getImages(image)
 
 
 
-cnts = cnts[1]
 questionCnts = []
-i = 0
+
+
 lista = [': Branco'] * 31
 
-box = cv2.minAreaRect(cnts[1])
-
-print box[2]
-
-
-if box[2] == 0.0: 
-	rot_mat = cv2.getRotationMatrix2D(box[0],90 - box[2], 1)
-	print rot_mat
-	print image.shape
-	thresh = cv2.warpAffine(thresh, rot_mat, (image.shape[0], image.shape[1]), flags=cv2.INTER_LINEAR)
 
 for c in cnts:
 	x,y,w,h = cv2.boundingRect(c)
@@ -164,7 +175,7 @@ for c in cnts:
 			cv2.drawContours(image, [c], -1, 255, -1)
 
 
-for i in range(31):
+for i in range(1,31):
 	print str(i) + " " + lista[i]
 plt.imshow(image)
 plt.show()
