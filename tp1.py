@@ -112,11 +112,12 @@ def getAnswer(x,y):
 			return 30
 		else:
 			return 15
-
+	else:
+		return 0
 
 def getImages(image):
 	image = cv2.resize(image,(960,1080))
-	image = image[330:680,193:804]
+	
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 	edged = cv2.Canny(blurred, 75, 200)
@@ -130,24 +131,40 @@ def getContours(thresh):
 	return cnts[1]
 
 def rotateImage(image,gray,blurred,edged,thresh):
+	thresh = thresh[330:680,193:804]
 	cnts = getContours(thresh)
 	box = cv2.minAreaRect(cnts[1])
 
 	if box[2] != 0.0: 
+		print 'entrou' + box[2]
 		rot_mat = cv2.getRotationMatrix2D(box[0],0 - box[2], 1)
 		image = cv2.warpAffine(image, rot_mat, (image.shape[0], image.shape[1]), flags=cv2.INTER_LINEAR)
 		gray = cv2.warpAffine(gray, rot_mat, (gray.shape[0], gray.shape[1]), flags=cv2.INTER_LINEAR)
 		blurred = cv2.warpAffine(blurred, rot_mat, (blurred.shape[0], blurred.shape[1]), flags=cv2.INTER_LINEAR)
 		edged = cv2.warpAffine(edged, rot_mat, (edged.shape[0], edged.shape[1]), flags=cv2.INTER_LINEAR)
 		thresh = cv2.warpAffine(thresh, rot_mat, (thresh.shape[0], thresh.shape[1]), flags=cv2.INTER_LINEAR)
+		thresh = thresh[330:680,193:804]
 		cnts = getContours(thresh)
-	return image,gray,blurred,edged,thresh,cnts
+
+	image = image[330:680,193:804]
+			
+		
 
 
 image = cv2.imread('dados/pattern_0002_scan.png');
+plt.imshow(image)
+plt.show()
 image, gray, blurred, edged, thresh, cnts = getImages(image)
 
-
+plt.imshow(image)
+plt.show()
+plt.imshow(blurred)
+plt.show()
+plt.imshow(edged)
+plt.show()
+plt.imshow(thresh)
+plt.show()
+	
 questionCnts = []
 lista = [': Branco'] * 31
 
@@ -169,8 +186,11 @@ for c in cnts:
 			cv2.drawContours(image, [c], -1, 255, -1)
 
 
+f = open('respostas.txt', 'w')
 for i in range(1,31):
-	print str(i) + " " + lista[i]
+	print str(i) + " " + lista[i] 
+	f.write(str(i) + " " + lista[i]+ "\n")
+f.close()
 
 plt.imshow(image)
 plt.show()
